@@ -186,6 +186,36 @@ void do_the_copy(vector<char> * s, vector<char> * h, vector<char> * c) {
   }
 }
 
+gav<char> remove_extra_space(gav<char> inp) {
+  vector<char> * ivec = inp.p();
+  gav<char> ou;
+  ou.make_new();
+  vector<char> * ovec = ou.p();
+  bool flag = false;
+  unsigned long long siz = ivec->size();
+  char here;
+  for (unsigned long long i=0;i<siz;i++) {
+    here = ivec->at(i);
+    if (here==10) {
+      if (flag) {
+        ovec->push_back(here);
+      }
+      flag = false;
+      continue;
+    }
+    if (flag) {
+      ovec->push_back(here);
+    }
+    else {
+      if ((here!=32) && (here!=9)) {
+        ovec->push_back(here);
+        flag = true;
+      }
+    }
+  }
+  return ou;
+}
+
 int main(int argc, char * argv[]) {
   if (argc<4) {
     cout << "not enough arguments" << endl;
@@ -196,10 +226,14 @@ int main(int argc, char * argv[]) {
   if (argc==5) {
     source = apply_debug(source);
   }
-  vector<char> h;
-  vector<char> c;
-  do_the_copy(source.p(),&h,&c);
-  quick_save::writefile(argv[2],&h);
-  quick_save::writefile(argv[3],&c);
+  gav<char> h;
+  h.make_new();
+  gav<char> c;
+  c.make_new();
+  do_the_copy(source.p(),h.p(),c.p());
+  h = remove_extra_space(h);
+  c = remove_extra_space(c);
+  quick_save::writefile(argv[2],h);
+  quick_save::writefile(argv[3],c);
   return 0;
 }
