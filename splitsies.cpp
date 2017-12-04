@@ -4,6 +4,76 @@
 #include <iostream>
 #include <string>
 
+void pushchar(vector<char> * r, const char * inp) {
+  int i = 0;
+  char m;
+  while (true) {
+    m = *(inp+i);
+    if (m==0) {
+      return;
+    }
+    r->push_back(m);
+    i += 1;
+  }
+}
+
+gav<char> apply_debug(gav<char> inp) {
+  vector<char> * ivec = inp.p();
+  gav<char> ou;
+  ou.make_new();
+  vector<char> * ovec = ou.p();
+  pushchar(ovec,"_?c#include \"SIMPLETRACEBACKDEBUGGER.h\"");
+  ovec->push_back(10);
+  pushchar(ovec,"_?C");
+  char ch1,ch2,ch3;
+  bool debug_active = false;
+  unsigned long long linenum = 1;
+  unsigned long long term = ivec->size();
+  unsigned long long i = 0;
+  while (true) {
+    if (i>=term) {
+      return ou;
+    }
+    ch1 = ivec->at(i);
+    if (term-i>2) {
+      ch2 = ivec->at(i+1);
+      ch3 = ivec->at(i+2);
+      if ((ch1=='_') && (ch2=='?')) {
+        if (ch3=='d') {
+          pushchar(ovec,"SIMPLETRACEBACKDEBUGGER::coin(\"");
+          i += 3;
+          while (ivec->at(i)!=';') {
+            ovec->push_back(ivec->at(i));
+            i += 1;
+          }
+          pushchar(ovec,"\");");
+          i += 1;
+          debug_active = true;
+          continue;
+        }
+        if (ch3=='D') {
+          i += 3;
+          debug_active = false;
+          continue;
+        }
+      }
+    }
+    if (ch1==10) {
+      linenum += 1;
+      if (debug_active) {
+        ovec->push_back(ch1);
+        i += 1;
+        pushchar(ovec,"SIMPLETRACEBACKDEBUGGER::update(");
+        pushchar(ovec,to_string(linenum).c_str());
+        pushchar(ovec,");");
+        continue;
+      }
+    }
+    ovec->push_back(ch1);
+    i += 1;
+  }
+}
+
 void do_the_copy(vector<char> * s, vector<char> * h, vector<char> * c) {
   bool ih = true;
   bool ic = true;
@@ -100,6 +170,9 @@ void do_the_copy(vector<char> * s, vector<char> * h, vector<char> * c) {
           i += 3;
           continue;
         }
+        // if none
+        i += 3;
+        continue;
       }
     }
     // not a command sequence
@@ -120,6 +193,9 @@ int main(int argc, char * argv[]) {
     exit(0);
   }
   gav<char> source = quick_save::readfile(argv[1]);
+  if (argc==5) {
+    source = apply_debug(source);
+  }
   vector<char> h;
   vector<char> c;
   do_the_copy(source.p(),&h,&c);
